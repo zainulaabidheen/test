@@ -288,13 +288,63 @@
   const db = getDatabase(app);
 
   let currentUser = null;
-  
+
+  // 1. AUTO-LOGIN ON PAGE LOAD (24-Hour Expiration Check)
+  window.addEventListener("DOMContentLoaded", () => {
+    checkSavedSession();
+  });
+
+  function checkSavedSession() {
+    const savedUser = localStorage.getItem("app_user");
+    const expiryTime = localStorage.getItem("app_user_expiry");
+
+    if (savedUser && expiryTime) {
+      const currentTime = Date.now();
+
+      // Check if current time is still within the 24-hour window
+      if (currentTime < parseInt(expiryTime, 10)) {
+        currentUser = JSON.parse(savedUser);
+        activateUserSession(currentUser);
+        return;
+      }
+    }
+
+    // Session expired or non-existent
+    clearSessionData();
+  }
+
+  function saveSessionData(user) {
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const expiryTimestamp = Date.now() + ONE_DAY_MS;
+
+    localStorage.setItem("app_user", JSON.stringify(user));
+    localStorage.setItem("app_user_expiry", expiryTimestamp.toString());
+  }
+
+  function clearSessionData() {
+    localStorage.removeItem("app_user");
+    localStorage.removeItem("app_user_expiry");
+  }
+
+  function activateUserSession(user) {
+    document.getElementById("login-error").classList.add("hidden");
+    document.getElementById("login-section").classList.add("hidden");
+    document.getElementById("dashboard-section").classList.remove("hidden");
+
+    const displayRole = user.role === "superadmin" ? "ސުޕަރ އެޑްމިން" : "ޔޫޒަރ";
+    document.getElementById("current-user-name").textContent = user.name;
+    document.getElementById("current-user-role").textContent = displayRole;
+
+    subscribeToDirectory();
+  }
+
+  // 2. LOGIN VALIDATION
   window.handleLogin = function() {
     const nameInput = document.getElementById("login-name").value.trim();
     const idInput = document.getElementById("login-id").value.trim();
 
     if (!nameInput || !idInput) {
-      showError("ނަމާއި އައިޑީ ކާޑު ނަންބަރު ޖައްސަވާ");
+      showError("އިލްތިމާސް: ނަމާއި އައިޑީ ކާޑު ނަންބަރު ޖައްސަވާ!");
       return;
     }
 
@@ -315,15 +365,8 @@
 
       if (matchedUser) {
         currentUser = matchedUser;
-        document.getElementById("login-error").classList.add("hidden");
-        document.getElementById("login-section").classList.add("hidden");
-        document.getElementById("dashboard-section").classList.remove("hidden");
-
-        const displayRole = currentUser.role === "superadmin" ? "ސުޕަރ އެޑްމިން" : "ޔޫޒަރ";
-        document.getElementById("current-user-name").textContent = currentUser.name;
-        document.getElementById("current-user-role").textContent = displayRole;
-
-        subscribeToDirectory();
+        saveSessionData(currentUser); // Save to browser storage for 24 hrs
+        activateUserSession(currentUser);
       } else {
         showError("ވަނުން މަނާކުރެވިފައި: ނަން ނުވަތަ އައިޑީ ކާޑު ނަންބަރު ނުބައި.");
       }
@@ -339,14 +382,17 @@
     errorElement.classList.remove("hidden");
   }
 
+  // 3. LOGOUT
   window.logout = function() {
     currentUser = null;
+    clearSessionData(); // Clear saved session on logout
     document.getElementById("dashboard-section").classList.add("hidden");
     document.getElementById("login-section").classList.remove("hidden");
     document.getElementById("login-name").value = "";
     document.getElementById("login-id").value = "";
   };
 
+  // 4. REAL-TIME LISTENERS
   function subscribeToDirectory() {
     const peopleRef = ref(db, "people");
     onValue(peopleRef, (snapshot) => {
@@ -355,6 +401,7 @@
     });
   }
 
+  // 5. TABLE RENDERING LOGIC
   function renderTable(peopleData) {
     const tbody = document.getElementById("directory-table-body");
     tbody.innerHTML = "";
@@ -377,7 +424,7 @@
       if (!person.ticked) {
         const tickBtn = document.createElement("button");
         tickBtn.className = "btn btn-primary";
-        tickBtn.textContent = "ވޯޓު ލައިފި";
+        tickBtn.textContent = "ޓިކް ކުރައްވާ";
         tickBtn.onclick = () => window.updateTickState(personId, true);
         actionCell.appendChild(tickBtn);
       } else {
@@ -387,7 +434,7 @@
         if (isTickedByCurrentUser) {
           const untickBtn = document.createElement("button");
           untickBtn.className = "btn btn-danger";
-          untickBtn.textContent = `ވޯޓުލި - ${currentUser.name}`;
+          untickBtn.textContent = `ޗެކް - ${currentUser.name}`;
           untickBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(untickBtn);
         } else if (isSuperadmin) {
@@ -397,12 +444,13 @@
           adminBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(adminBtn);
         } else {
-          actionCell.innerHTML = `<span class="status-badge">✓ ވޯޓުލި ${person.tickedByName}</span>`;
+          actionCell.innerHTML = `<span class="status-badge">✓ ޓިކްކުރީ ${person.tickedByName}</span>`;
         }
       }
     }
   }
-  
+
+  // 6. DATABASE TICK STATE MUTATION
   window.updateTickState = function(personId, setTicked) {
     const personRef = ref(db, `people/${personId}`);
 
@@ -421,12 +469,13 @@
     }
   };
 
+  // 7. EXCEL UPLOAD
   window.handleExcelUpload = function() {
     const fileInput = document.getElementById('excel-file-input');
     const file = fileInput.files[0];
 
     if (!file) {
-      alert("އެކްސެލް ފައިލެއް ނަންގަވާ");
+      alert("އިލްތިމާސް: އެކްސެލް ފައިލެއް ނަންގަވާ!");
       return;
     }
 
@@ -461,7 +510,7 @@
 
         update(ref(db), updates).then(() => {
           alert("އެކްސެލް ލިސްޓު ކާމިޔާބުކަމާއެކު އަޕްލޯޑް ކުރެވިއްޖެ!");
-          fileInput.value = ""; // reset input
+          fileInput.value = "";
         }).catch((err) => {
           console.error(err);
           alert("ޑޭޓާ އަޕްލޯޑް ކުރުމުގައި މައްސަލައެއް ޖެހިއްޖެ.");
@@ -476,6 +525,5 @@
     reader.readAsArrayBuffer(file);
   };
 </script>
-
 </body>
 </html>
