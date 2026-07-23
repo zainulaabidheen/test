@@ -289,7 +289,6 @@
 
   let currentUser = null;
 
-  // 1. AUTO-LOGIN ON PAGE LOAD (24-Hour Expiration Check)
   window.addEventListener("DOMContentLoaded", () => {
     checkSavedSession();
   });
@@ -301,20 +300,18 @@
     if (savedUser && expiryTime) {
       const currentTime = Date.now();
 
-      // Check if current time is still within the 24-hour window
       if (currentTime < parseInt(expiryTime, 10)) {
         currentUser = JSON.parse(savedUser);
         activateUserSession(currentUser);
         return;
       }
     }
-
-    // Session expired or non-existent
+    
     clearSessionData();
   }
 
   function saveSessionData(user) {
-    const ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
     const expiryTimestamp = Date.now() + ONE_DAY_MS;
 
     localStorage.setItem("app_user", JSON.stringify(user));
@@ -338,13 +335,12 @@
     subscribeToDirectory();
   }
 
-  // 2. LOGIN VALIDATION
   window.handleLogin = function() {
     const nameInput = document.getElementById("login-name").value.trim();
     const idInput = document.getElementById("login-id").value.trim();
 
     if (!nameInput || !idInput) {
-      showError("އިލްތިމާސް: ނަމާއި އައިޑީ ކާޑު ނަންބަރު ޖައްސަވާ!");
+      showError("ނަމާއި އައިޑީ ކާޑު ނަންބަރު ޖައްސަވާ");
       return;
     }
 
@@ -365,7 +361,7 @@
 
       if (matchedUser) {
         currentUser = matchedUser;
-        saveSessionData(currentUser); // Save to browser storage for 24 hrs
+        saveSessionData(currentUser);
         activateUserSession(currentUser);
       } else {
         showError("ވަނުން މަނާކުރެވިފައި: ނަން ނުވަތަ އައިޑީ ކާޑު ނަންބަރު ނުބައި.");
@@ -382,17 +378,15 @@
     errorElement.classList.remove("hidden");
   }
 
-  // 3. LOGOUT
   window.logout = function() {
     currentUser = null;
-    clearSessionData(); // Clear saved session on logout
+    clearSessionData();
     document.getElementById("dashboard-section").classList.add("hidden");
     document.getElementById("login-section").classList.remove("hidden");
     document.getElementById("login-name").value = "";
     document.getElementById("login-id").value = "";
   };
 
-  // 4. REAL-TIME LISTENERS
   function subscribeToDirectory() {
     const peopleRef = ref(db, "people");
     onValue(peopleRef, (snapshot) => {
@@ -401,7 +395,6 @@
     });
   }
 
-  // 5. TABLE RENDERING LOGIC
   function renderTable(peopleData) {
     const tbody = document.getElementById("directory-table-body");
     tbody.innerHTML = "";
@@ -424,7 +417,7 @@
       if (!person.ticked) {
         const tickBtn = document.createElement("button");
         tickBtn.className = "btn btn-primary";
-        tickBtn.textContent = "ޓިކް ކުރައްވާ";
+        tickBtn.textContent = "ވޯޓު ލައިފި";
         tickBtn.onclick = () => window.updateTickState(personId, true);
         actionCell.appendChild(tickBtn);
       } else {
@@ -434,7 +427,7 @@
         if (isTickedByCurrentUser) {
           const untickBtn = document.createElement("button");
           untickBtn.className = "btn btn-danger";
-          untickBtn.textContent = `ޗެކް - ${currentUser.name}`;
+          untickBtn.textContent = `ވޯޓުލިކަމަށް - ${currentUser.name} ހެކިވަން`;
           untickBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(untickBtn);
         } else if (isSuperadmin) {
@@ -444,13 +437,12 @@
           adminBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(adminBtn);
         } else {
-          actionCell.innerHTML = `<span class="status-badge">✓ ޓިކްކުރީ ${person.tickedByName}</span>`;
+          actionCell.innerHTML = `<span class="status-badge"> ވޯޓުލިކަމަށް ${person.tickedByName} ހެކިވޭ</span>`;
         }
       }
     }
   }
 
-  // 6. DATABASE TICK STATE MUTATION
   window.updateTickState = function(personId, setTicked) {
     const personRef = ref(db, `people/${personId}`);
 
@@ -469,13 +461,12 @@
     }
   };
 
-  // 7. EXCEL UPLOAD
   window.handleExcelUpload = function() {
     const fileInput = document.getElementById('excel-file-input');
     const file = fileInput.files[0];
 
     if (!file) {
-      alert("އިލްތިމާސް: އެކްސެލް ފައިލެއް ނަންގަވާ!");
+      alert("އެކްސެލް ފައިލެއް ނަންގަވާ");
       return;
     }
 
