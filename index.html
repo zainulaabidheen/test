@@ -2,135 +2,270 @@
 <html lang="dv" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ރިއަލް-ޓައިމް ޑައިރެކްޓަރީ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Database</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thaana:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
-    @font-face {
-      font-family: 'Faruma';
-      src: local('Faruma'), local('MV Faruma');
+    :root {
+      --primary-color: #0f172a;
+      --accent-color: #2563eb;
+      --accent-hover: #1d4ed8;
+      --danger-color: #ef4444;
+      --danger-hover: #dc2626;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      font-family: 'Faruma', 'MV Boli', 'Noto Sans Thaana', sans-serif;
-      margin: 30px;
-      background-color: #f4f6f8;
+      font-family: 'Noto Sans Thaana', 'Faruma', 'MV Boli', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       direction: rtl;
       text-align: right;
+      padding: 15px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
     }
 
     .card {
-      max-width: 850px;
-      margin: 0 auto;
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+      margin-top: 10px;
     }
 
-    .hidden { display: none; }
-    
+    .hidden { display: none !important; }
     .login-box {
-      max-width: 380px;
-      margin: 50px auto;
+      max-width: 400px;
+      margin: 40px auto;
     }
 
-    input[type="text"] {
-      font-family: 'Faruma', 'MV Boli', sans-serif;
+    .login-box h2 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"], input[type="file"] {
+      font-family: inherit;
       width: 100%;
-      padding: 10px;
-      margin: 8px 0 16px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    th, td {
-      border: 1px solid #e0e0e0;
       padding: 12px;
-      text-align: right;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #f8fafc;
+      font-size: 1rem;
+      transition: all 0.2s;
     }
 
-    th {
-      background-color: #007bff;
-      color: white;
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
     .btn {
-      font-family: 'Faruma', 'MV Boli', sans-serif;
-      padding: 8px 14px;
+      font-family: inherit;
+      padding: 10px 18px;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
     }
 
-    .btn-primary { background-color: #007bff; color: white; }
-    .btn-danger { background-color: #dc3545; color: white; }
+    .btn-primary { background-color: var(--accent-color); color: white; }
+    .btn-primary:hover { background-color: var(--accent-hover); }
+    
+    .btn-danger { background-color: var(--danger-color); color: white; }
+    .btn-danger:hover { background-color: var(--danger-hover); }
+
+    .btn-success { background-color: #10b981; color: white; }
+    .btn-success:hover { background-color: #059669; }
 
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
+    .admin-tools {
+      background: #f1f5f9;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .admin-tools h4 {
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      white-space: nowrap;
+      min-width: 600px;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: right;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--primary-color);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) { background-color: #f8fafc; }
+
     .status-badge {
-      color: #28a745;
-      font-weight: bold;
+      display: inline-block;
+      padding: 6px 12px;
+      background-color: #d1fae5;
+      color: #065f46;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
     }
 
     .error-msg {
-      color: #dc3545;
-      margin-bottom: 10px;
+      color: var(--danger-color);
+      background-color: #fef2f2;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      border: 1px solid #fecaca;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 8px; }
+      .card { padding: 16px; }
+      .header-bar { flex-direction: column; align-items: flex-start; }
+      .header-bar button { width: 100%; }
+      .btn { width: 100%; text-align: center; }
+      td, th { padding: 10px 12px; font-size: 0.9rem; }
     }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <div id="login-section" class="login-box">
-    <h2>ޕޯޓަލް އަށް ވަނުން</h2>
-    <div id="login-error" class="error-msg hidden"></div>
+<div class="container">
+  <div class="card">
     
-    <label for="login-name">ފުރިހަމަ ނަން</label>
-    <input type="text" id="login-name" placeholder="މިސާލަކަށް: ޢަލީ އަޙްމަދު">
-
-    <label for="login-id">އައިޑީ ކާޑު ނަންބަރު</label>
-    <input type="text" id="login-id" placeholder="މިސާލަކަށް: A123456">
-
-    <button class="btn btn-primary" style="width: 100%;" onclick="handleLogin()">ވަންނަވާ</button>
-  </div>
-
-  <div id="dashboard-section" class="hidden">
-    <div class="header-bar">
-      <div>
-        ލޮގިންވެފައިވަނީ: <strong id="current-user-name"></strong> 
-        (<span id="current-user-role"></span>)
+    <div id="login-section" class="login-box">
+      <h2>މަރުހަބާ!</h2>
+      <div id="login-error" class="error-msg hidden"></div>
+      
+      <div class="form-group">
+        <label for="login-name">ފުރިހަމަ ނަން</label>
+        <input type="text" id="login-name" placeholder="މިސާލު: ޢަލީ އަޙްމަދު">
       </div>
-      <button class="btn btn-danger" onclick="logout()">ލޮގް އައުޓް</button>
+
+      <div class="form-group">
+        <label for="login-id">އައިޑީ ކާޑު ނަންބަރު</label>
+        <input type="text" id="login-id" placeholder="މިސާލު: A123456">
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">ވަންނަވާ</button>
     </div>
 
-    <h3>މީހުންގެ މަޢުލޫމާތު</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>ނަން</th>
-          <th>އެޑްރެސް</th>
-          <th>ފޯނު ނަންބަރު</th>
-          <th>އައިޑީ ކާޑު ނަންބަރު</th>
-          <th>ޙާލަތު / ފިޔަވަޅު</th>
-        </tr>
-      </thead>
-      <tbody id="directory-table-body">
-        </tbody>
-    </table>
+    <div id="dashboard-section" class="hidden">
+      <div class="header-bar">
+        <div>
+          ލޮގިންވީ: <strong id="current-user-name"></strong> 
+          (<span id="current-user-role"></span>)
+        </div>
+        <button class="btn btn-danger" onclick="logout()">ލޮގް އައުޓް</button>
+      </div>
+
+      <div id="excel-upload-container" class="admin-tools">
+        <h4>އެކްސެލް ޝީޓް އަޕްލޯޑް ކުރެއްވުމަށް</h4>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="flex: 1;">
+          <button class="btn btn-success" onclick="handleExcelUpload()">އަޕްލޯޑް ކުރައްވާ</button>
+        </div>
+        <small style="color: #64748b; margin-top: 6px; display: block;">
+          * އެކްސެލް ފައިލްގެ ކޮންމެ ކޮލަމެއަގެ އެންމެ ފުރަތަމަ ހުންނަންވާނީ: <b>name</b>, <b>address</b>, <b>mobile</b>, <b>nationalId</b>
+        </small>
+      </div>
+
+      <h3 style="margin-bottom: 12px; color: var(--primary-color);">ވޯޓުލާ މީހުން</h3>
+      
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ނަން</th>
+              <th>އެޑްރެސް</th>
+              <th>ފޯނު ނަންބަރު</th>
+              <th>އައިޑީ ކާޑު ނަންބަރު</th>
+              <th>ޙާލަތު</th>
+            </tr>
+          </thead>
+          <tbody id="directory-table-body">
+            </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -153,14 +288,13 @@
   const db = getDatabase(app);
 
   let currentUser = null;
-
-  // 1. LOGIN VALIDATION
+  
   window.handleLogin = function() {
     const nameInput = document.getElementById("login-name").value.trim();
     const idInput = document.getElementById("login-id").value.trim();
 
     if (!nameInput || !idInput) {
-      showError("އިލްތިމާސް: ނަމާއި އައިޑީ ކާޑު ނަންބަރު ޖައްސަވާ!");
+      showError("ނަމާއި އައިޑީ ކާޑު ނަންބަރު ޖައްސަވާ");
       return;
     }
 
@@ -213,7 +347,6 @@
     document.getElementById("login-id").value = "";
   };
 
-  // 2. REAL-TIME DATA LISTENERS
   function subscribeToDirectory() {
     const peopleRef = ref(db, "people");
     onValue(peopleRef, (snapshot) => {
@@ -222,7 +355,6 @@
     });
   }
 
-  // 3. TABLE RENDERING LOGIC
   function renderTable(peopleData) {
     const tbody = document.getElementById("directory-table-body");
     tbody.innerHTML = "";
@@ -232,10 +364,10 @@
       const tr = document.createElement("tr");
 
       tr.innerHTML = `
-        <td>${person.name}</td>
-        <td>${person.address}</td>
-        <td>${person.mobile}</td>
-        <td>${person.nationalId}</td>
+        <td><b>${person.name || ''}</b></td>
+        <td>${person.address || ''}</td>
+        <td>${person.mobile || ''}</td>
+        <td>${person.nationalId || ''}</td>
         <td id="cell-${personId}"></td>
       `;
       tbody.appendChild(tr);
@@ -245,7 +377,7 @@
       if (!person.ticked) {
         const tickBtn = document.createElement("button");
         tickBtn.className = "btn btn-primary";
-        tickBtn.textContent = "ޓިކް ކުރައްވާ";
+        tickBtn.textContent = "ވޯޓު ލައިފި";
         tickBtn.onclick = () => window.updateTickState(personId, true);
         actionCell.appendChild(tickBtn);
       } else {
@@ -255,7 +387,7 @@
         if (isTickedByCurrentUser) {
           const untickBtn = document.createElement("button");
           untickBtn.className = "btn btn-danger";
-          untickBtn.textContent = `ޗެކް - ${currentUser.name}`;
+          untickBtn.textContent = `ވޯޓުލި - ${currentUser.name}`;
           untickBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(untickBtn);
         } else if (isSuperadmin) {
@@ -265,13 +397,12 @@
           adminBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(adminBtn);
         } else {
-          actionCell.innerHTML = `<span class="status-badge">✓ ޓިކްކުރީ ${person.tickedByName}</span>`;
+          actionCell.innerHTML = `<span class="status-badge">✓ ވޯޓުލި ${person.tickedByName}</span>`;
         }
       }
     }
   }
-
-  // 4. REALTIME DATABASE UPDATES
+  
   window.updateTickState = function(personId, setTicked) {
     const personRef = ref(db, `people/${personId}`);
 
@@ -288,6 +419,61 @@
         tickedByName: ""
       });
     }
+  };
+
+  window.handleExcelUpload = function() {
+    const fileInput = document.getElementById('excel-file-input');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert("އެކްސެލް ފައިލެއް ނަންގަވާ");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+
+        if (jsonRows.length === 0) {
+          alert("ފައިލުގައި އެއްވެސް ޑޭޓާއެއް ނެތް!");
+          return;
+        }
+
+        const updates = {};
+        jsonRows.forEach((row, index) => {
+          const personKey = `p_excel_${Date.now()}_${index}`;
+          updates[`people/${personKey}`] = {
+            name: row.name || row.Name || "",
+            address: row.address || row.Address || "",
+            mobile: row.mobile || row.Mobile || "",
+            nationalId: row.nationalId || row.NationalId || row.NationalID || "",
+            ticked: false,
+            tickedById: "",
+            tickedByName: ""
+          };
+        });
+
+        update(ref(db), updates).then(() => {
+          alert("އެކްސެލް ލިސްޓު ކާމިޔާބުކަމާއެކު އަޕްލޯޑް ކުރެވިއްޖެ!");
+          fileInput.value = ""; // reset input
+        }).catch((err) => {
+          console.error(err);
+          alert("ޑޭޓާ އަޕްލޯޑް ކުރުމުގައި މައްސަލައެއް ޖެހިއްޖެ.");
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert("އެކްސެލް ފައިލް ކިޔުމުގައި މައްސަލައެއް ޖެހިއްޖެ. ސައްޙަ ފައިލެއްތޯ ޔަޤީންކުރައްވާ!");
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   };
 </script>
 
