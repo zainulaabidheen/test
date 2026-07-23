@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Directory</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f6f8; }
+    .card { max-width: 850px; margin: 0 auto; background: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .hidden { display: none; }
+    .login-box { max-width: 380px; margin: 50px auto; }
+    input[type="text"] { width: 100%; padding: 10px; margin: 8px 0 16px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #e0e0e0; padding: 12px; text-align: left; }
+    th { background-color: #007bff; color: white; }
+    .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-primary { background-color: #007bff; color: white; }
+    .btn-danger { background-color: #dc3545; color: white; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .status-badge { color: #28a745; font-weight: bold; }
+    .error-msg { color: #dc3545; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div id="login-section" class="login-box">
+    <h2>Portal Login</h2>
+    <div id="login-error" class="error-msg hidden"></div>
+    
+    <label for="login-name">Full Name</label>
+    <input type="text" id="login-name" placeholder="e.g. Alice Smith">
+
+    <label for="login-id">National ID</label>
+    <input type="text" id="login-id" placeholder="e.g. 1001">
+
+    <button class="btn btn-primary" style="width: 100%;" onclick="handleLogin()">Login</button>
+  </div>
+
+  <div id="dashboard-section" class="hidden">
+    <div class="header-bar">
+      <div>
+        Logged in as: <strong id="current-user-name"></strong> 
+        (<span id="current-user-role"></span>)
+      </div>
+      <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+
+    <h3>People Directory</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Address</th>
+          <th>Mobile Number</th>
+          <th>National ID</th>
+          <th>Action / Status</th>
+        </tr>
+      </thead>
+      <tbody id="directory-table-body">
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<script type="module">
+  // Modern Firebase v12 Modular SDK Imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+  // Your Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDshw1269_3lCKNlphJ2Mbk2gg5L1XCt8E",
+    authDomain: "vote-database-3ed9b.firebaseapp.com",
+    databaseURL: "https://vote-database-3ed9b-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "vote-database-3ed9b",
+    storageBucket: "vote-database-3ed9b.firebasestorage.app",
+    messagingSenderId: "366929877529",
+    appId: "1:366929877529:web:eac3c5c2820a010938e888",
+    measurementId: "G-W6V17KL65D"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let currentUser = null;
+
+  // 1. LOGIN VALIDATION
+  window.handleLogin = function() {
+    const nameInput = document.getElementById("login-name").value.trim();
+    const idInput = document.getElementById("login-id").value.trim();
+
+    if (!nameInput || !idInput) {
+      showError("Please enter both Name and National ID.");
+      return;
+    }
+
+    const usersRef = ref(db, "users");
+    get(usersRef).then((snapshot) => {
+      const users = snapshot.val() || {};
+      let matchedUser = null;
+
+      for (let key in users) {
+        if (
+          users[key].name.toLowerCase() === nameInput.toLowerCase() &&
+          users[key].nationalId.toString() === idInput
+        ) {
+          matchedUser = users[key];
+          break;
+        }
+      }
+
+      if (matchedUser) {
+        currentUser = matchedUser;
+        document.getElementById("login-error").classList.add("hidden");
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("dashboard-section").classList.remove("hidden");
+
+        document.getElementById("current-user-name").textContent = currentUser.name;
+        document.getElementById("current-user-role").textContent = currentUser.role.toUpperCase();
+
+        // Subscribe to real-time updates across all open sessions
+        subscribeToDirectory();
+      } else {
+        showError("Access Restricted: Invalid Name or National ID.");
+      }
+    }).catch((error) => {
+      console.error(error);
+      showError("Database connection error. Ensure your Firebase Database Rules allow read access.");
+    });
+  };
+
+  function showError(msg) {
+    const errorElement = document.getElementById("login-error");
+    errorElement.textContent = msg;
+    errorElement.classList.remove("hidden");
+  }
+
+  window.logout = function() {
+    currentUser = null;
+    document.getElementById("dashboard-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
+    document.getElementById("login-name").value = "";
+    document.getElementById("login-id").value = "";
+  };
+
+  // 2. REAL-TIME DATA LISTENERS
+  function subscribeToDirectory() {
+    const peopleRef = ref(db, "people");
+    onValue(peopleRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      renderTable(data);
+    });
+  }
+
+  // 3. TABLE RENDERING LOGIC
+  function renderTable(peopleData) {
+    const tbody = document.getElementById("directory-table-body");
+    tbody.innerHTML = "";
+
+    for (let personId in peopleData) {
+      const person = peopleData[personId];
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${person.name}</td>
+        <td>${person.address}</td>
+        <td>${person.mobile}</td>
+        <td>${person.nationalId}</td>
+        <td id="cell-${personId}"></td>
+      `;
+      tbody.appendChild(tr);
+
+      const actionCell = tr.querySelector(`#cell-${personId}`);
+
+      if (!person.ticked) {
+        // Person not ticked yet
+        const tickBtn = document.createElement("button");
+        tickBtn.className = "btn btn-primary";
+        tickBtn.textContent = "Tick";
+        tickBtn.onclick = () => window.updateTickState(personId, true);
+        actionCell.appendChild(tickBtn);
+      } else {
+        const isTickedByCurrentUser = person.tickedById === currentUser.nationalId;
+        const isSuperadmin = currentUser.role === "superadmin";
+
+        if (isTickedByCurrentUser) {
+          // Display button only for the person who clicked it
+          const untickBtn = document.createElement("button");
+          untickBtn.className = "btn btn-danger";
+          untickBtn.textContent = `Check - ${currentUser.name}`;
+          untickBtn.onclick = () => window.updateTickState(personId, false);
+          actionCell.appendChild(untickBtn);
+        } else if (isSuperadmin) {
+          // Superadmin action button
+          const adminBtn = document.createElement("button");
+          adminBtn.className = "btn btn-danger";
+          adminBtn.textContent = `Admin Untick (${person.tickedByName})`;
+          adminBtn.onclick = () => window.updateTickState(personId, false);
+          actionCell.appendChild(adminBtn);
+        } else {
+          // Display status text only for other regular users
+          actionCell.innerHTML = `<span class="status-badge">✓ Ticked by ${person.tickedByName}</span>`;
+        }
+      }
+    }
+  }
+
+  // 4. REALTIME DATABASE UPDATES
+  window.updateTickState = function(personId, setTicked) {
+    const personRef = ref(db, `people/${personId}`);
+
+    if (setTicked) {
+      update(personRef, {
+        ticked: true,
+        tickedById: currentUser.nationalId,
+        tickedByName: currentUser.name
+      });
+    } else {
+      update(personRef, {
+        ticked: false,
+        tickedById: "",
+        tickedByName: ""
+      });
+    }
+  };
+</script>
+
+</body>
+</html>
