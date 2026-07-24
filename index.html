@@ -302,7 +302,12 @@
       </div>
 
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">ވޯޓުލާ މީހުން</h3>
-      
+
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label for="search-input">ހޯއްދަވާ (ނަން، އެޑްރެސް، ފޯނު ނުވަތަ އައިޑީ):</label>
+        <input type="text" id="search-input" placeholder="ހޯއްދަވާ...">
+      </div>
+
       <div class="table-responsive">
         <table>
           <thead>
@@ -376,12 +381,19 @@
 
   let currentUser = null;
   let countdownInterval = null;
+  let allPeopleData = {}; // Stores all incoming data for search filtering
 
   // PASSWORD FOR DELETING ALL NAMES (Change this as desired)
   const DELETE_PASSWORD = "9871232580";
 
   window.addEventListener("DOMContentLoaded", () => {
     checkSavedSession();
+
+    // Attach search event listener
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) {
+      searchInput.addEventListener("input", filterAndRenderTable);
+    }
   });
 
   function checkSavedSession() {
@@ -484,14 +496,46 @@
     document.getElementById("login-section").classList.remove("hidden");
     document.getElementById("login-name").value = "";
     document.getElementById("login-id").value = "";
+    document.getElementById("search-input").value = "";
   };
 
   function subscribeToDirectory() {
     const peopleRef = ref(db, "people");
     onValue(peopleRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      renderTable(data);
+      allPeopleData = snapshot.val() || {};
+      filterAndRenderTable();
     });
+  }
+
+  // Filters records based on search bar input
+  function filterAndRenderTable() {
+    const searchInput = document.getElementById("search-input");
+    const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+    if (!query) {
+      renderTable(allPeopleData);
+      return;
+    }
+
+    const filteredData = {};
+    for (let personId in allPeopleData) {
+      const p = allPeopleData[personId];
+      const name = (p.name || "").toLowerCase();
+      const address = (p.address || "").toLowerCase();
+      const mobile = (p.mobile || "").toString().toLowerCase();
+      const nationalId = (p.nationalId || "").toString().toLowerCase();
+
+      if (
+        name.includes(query) ||
+        address.includes(query) ||
+        mobile.includes(query) ||
+        nationalId.includes(query)
+      ) {
+        filteredData[personId] = p;
+      }
+    }
+
+    renderTable(filteredData);
   }
 
   function renderTable(peopleData) {
