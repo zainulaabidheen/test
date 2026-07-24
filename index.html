@@ -381,7 +381,7 @@
 
   let currentUser = null;
   let countdownInterval = null;
-  let allPeopleData = {}; // Stores all incoming data for search filtering
+  let allPeopleData = {};
 
   // PASSWORD FOR DELETING ALL NAMES (Change this as desired)
   const DELETE_PASSWORD = "9871232580";
@@ -394,6 +394,13 @@
     if (searchInput) {
       searchInput.addEventListener("input", filterAndRenderTable);
     }
+
+    // Attach vibration trigger to all buttons (including dynamic ones)
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".btn") && "vibrate" in navigator) {
+        navigator.vibrate(40);
+      }
+    });
   });
 
   function checkSavedSession() {
@@ -507,7 +514,6 @@
     });
   }
 
-  // Filters records based on search bar input
   function filterAndRenderTable() {
     const searchInput = document.getElementById("search-input");
     const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
