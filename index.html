@@ -281,12 +281,12 @@
       
       <div class="form-group">
         <label for="login-name">ފުރިހަމަ ނަން</label>
-        <input type="text" id="login-name" placeholder="މިސާލު: ޢަލީ އަޙްމަދު">
+        <input type="text" id="login-name">
       </div>
 
       <div class="form-group">
         <label for="login-id">އައިޑީ ކާޑު ނަންބަރު</label>
-        <input type="text" id="login-id" placeholder="މިސާލު: A123456">
+        <input type="text" id="login-id">
       </div>
 
       <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">ވަންނަވާ</button>
@@ -295,7 +295,7 @@
     <div id="dashboard-section" class="hidden">
       <div class="header-bar">
         <div>
-          ލޮގިންވީ: <strong id="current-user-name"></strong> 
+          ލޮގިންވެފައިވަނީ: <strong id="current-user-name"></strong> 
           (<span id="current-user-role"></span>)
         </div>
         <button class="btn btn-danger" onclick="logout()">ލޮގް އައުޓް</button>
@@ -309,7 +309,7 @@
             <button class="btn btn-success" onclick="handleExcelUpload()">އަޕްލޯޑް ކުރައްވާ</button>
           </div>
           <small style="color: #64748b; margin-top: 6px; display: block;">
-            * އެކްސެލް ފައިލްގެ ކޮންމެ ކޮލަމެއްގެ އެންމެ ފުރަތަމަ ހުންނަންވާނީ: <b>name</b>, <b>address</b>, <b>mobile</b>, <b>nationalId</b>
+            * އެކްސެލް ފައިލްގެ ކޮންމެ ކޮލަމެއްގެ އެންމެ ފުރަތަމަ ލައިން ހުންނަންވާނީ: <b>name</b>, <b>address</b>, <b>mobile</b>, <b>nationalId</b> މިހެން
           </small>
         </div>
 
@@ -322,11 +322,11 @@
         </div>
       </div>
 
-      <h3 style="margin-bottom: 12px; color: var(--primary-color);">ވޯޓުލާ މީހުން</h3>
+      <h3 style="margin-bottom: 12px; color: var(--primary-color);">އިންތިޚާބުގައި ވޯޓުލުމަށް ޝަރުތު ހަމަވާ މީހުން</h3>
 
       <div class="form-group" style="margin-bottom: 16px;">
-        <label for="search-input">ހޯއްދަވާ (ނަން، އެޑްރެސް، ފޯނު ނުވަތަ އައިޑީ):</label>
-        <input type="text" id="search-input" placeholder="ހޯއްދަވާ...">
+        <label for="search-input">ހޯއްދަވާ (ނަން، އެޑްރެސް، ފޯނު ނުވަތަ އައިޑީ ކާޑު ނަންަރު):</label>
+        <input type="text" id="search-input">
       </div>
 
       <div class="table-responsive">
@@ -404,22 +404,25 @@
   let countdownInterval = null;
   let allPeopleData = {};
 
-  // PASSWORD FOR DELETING ALL NAMES (Change this as desired)
   const DELETE_PASSWORD = "9871232580";
 
   window.addEventListener("DOMContentLoaded", () => {
     checkSavedSession();
 
-    // Attach search event listener
     const searchInput = document.getElementById("search-input");
     if (searchInput) {
       searchInput.addEventListener("input", filterAndRenderTable);
     }
 
-    // Attach vibration trigger to all buttons (including dynamic ones)
-    document.addEventListener("click", (e) => {
-      if (e.target.closest(".btn") && "vibrate" in navigator) {
-        navigator.vibrate(40);
+    function triggerVibration() {
+      if ("vibrate" in navigator) {
+        navigator.vibrate([40]); 
+      }
+    }
+    
+    document.addEventListener("pointerdown", (e) => {
+      if (e.target.closest(".btn")) {
+        triggerVibration();
       }
     });
   });
