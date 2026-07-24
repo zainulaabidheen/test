@@ -328,7 +328,8 @@
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("dashboard-section").classList.remove("hidden");
 
-    const displayRole = user.role === "superadmin" ? "ސުޕަރ އެޑްމިން" : "ޔޫޒަރ";
+    // UPDATED: Role display string for candidate and mandhoob
+    const displayRole = user.role === "candidate" ? "ކެންޑިޑޭޓް" : "މަންދޫބު";
     document.getElementById("current-user-name").textContent = user.name;
     document.getElementById("current-user-role").textContent = displayRole;
 
@@ -422,7 +423,9 @@
         actionCell.appendChild(tickBtn);
       } else {
         const isTickedByCurrentUser = person.tickedById === currentUser.nationalId;
-        const isSuperadmin = currentUser.role === "superadmin";
+        
+        // UPDATED: Check for 'candidate' role instead of 'superadmin'
+        const isCandidate = currentUser.role === "candidate";
 
         if (isTickedByCurrentUser) {
           const untickBtn = document.createElement("button");
@@ -430,10 +433,10 @@
           untickBtn.textContent = `ވޯޓުލިކަމަށް - ${currentUser.name} ހެކިވަން`;
           untickBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(untickBtn);
-        } else if (isSuperadmin) {
+        } else if (isCandidate) {
           const adminBtn = document.createElement("button");
           adminBtn.className = "btn btn-danger";
-          adminBtn.textContent = `އެޑްމިން އަންޓިކް (${person.tickedByName})`;
+          adminBtn.textContent = `ކެންޑިޑޭޓް އަންޓިކް (${person.tickedByName})`;
           adminBtn.onclick = () => window.updateTickState(personId, false);
           actionCell.appendChild(adminBtn);
         } else {
