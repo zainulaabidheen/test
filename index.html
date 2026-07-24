@@ -55,6 +55,7 @@
     }
 
     .hidden { display: none !important; }
+
     .login-box {
       max-width: 400px;
       margin: 40px auto;
@@ -78,7 +79,7 @@
       font-size: 0.95rem;
     }
 
-    input[type="text"], input[type="file"] {
+    input[type="text"], input[type="password"], input[type="file"] {
       font-family: inherit;
       width: 100%;
       padding: 12px;
@@ -89,7 +90,7 @@
       transition: all 0.2s;
     }
 
-    input[type="text"]:focus {
+    input[type="text"]:focus, input[type="password"]:focus {
       outline: none;
       border-color: var(--accent-color);
       background-color: #fff;
@@ -121,6 +122,9 @@
     .btn-success { background-color: #10b981; color: white; }
     .btn-success:hover { background-color: #059669; }
 
+    .btn-secondary { background-color: #64748b; color: white; }
+    .btn-secondary:hover { background-color: #475569; }
+
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -143,6 +147,16 @@
     .admin-tools h4 {
       margin-bottom: 10px;
       color: var(--primary-color);
+    }
+
+    .danger-zone {
+      background: #fef2f2;
+      border: 1px dashed #fecaca;
+      margin-top: 15px;
+    }
+
+    .danger-zone h4 {
+      color: var(--danger-color);
     }
 
     .table-responsive {
@@ -195,6 +209,36 @@
       border: 1px solid #fecaca;
     }
 
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 15px;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 450px;
+      width: 100%;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      text-align: right;
+    }
+
+    .countdown-circle {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--danger-color);
+      text-align: center;
+      margin: 15px 0;
+    }
+
     @media (max-width: 600px) {
       body { padding: 8px; }
       .card { padding: 16px; }
@@ -236,15 +280,25 @@
         <button class="btn btn-danger" onclick="logout()">ލޮގް އައުޓް</button>
       </div>
 
-      <div id="excel-upload-container" class="admin-tools">
-        <h4>އެކްސެލް ޝީޓް އަޕްލޯޑް ކުރެއްވުމަށް</h4>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="flex: 1;">
-          <button class="btn btn-success" onclick="handleExcelUpload()">އަޕްލޯޑް ކުރައްވާ</button>
+      <div id="candidate-tools-container" class="hidden">
+        <div class="admin-tools">
+          <h4>އެކްސެލް ޝީޓް އަޕްލޯޑް ކުރެއްވުމަށް</h4>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="flex: 1;">
+            <button class="btn btn-success" onclick="handleExcelUpload()">އަޕްލޯޑް ކުރައްވާ</button>
+          </div>
+          <small style="color: #64748b; margin-top: 6px; display: block;">
+            * އެކްސެލް ފައިލްގެ ކޮންމެ ކޮލަމެއްގެ އެންމެ ފުރަތަމަ ހުންނަންވާނީ: <b>name</b>, <b>address</b>, <b>mobile</b>, <b>nationalId</b>
+          </small>
         </div>
-        <small style="color: #64748b; margin-top: 6px; display: block;">
-          * އެކްސެލް ފައިލްގެ ކޮންމެ ކޮލަމެއަގެ އެންމެ ފުރަތަމަ ހުންނަންވާނީ: <b>name</b>, <b>address</b>, <b>mobile</b>, <b>nationalId</b>
-        </small>
+
+        <div class="admin-tools danger-zone">
+          <h4>ހުރިހާ ޑޭޓާއެއް ފޮހެލުން</h4>
+          <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px;">
+            ލިސްޓުގައިވާ ހުރިހާ މީހުންގެ ނަންތައް ޑޭޓާބޭސްއިން އެކީގައި ފޮހެލުމަށް ތިރީގައިވާ ބަޓަނަށް ފިތާލައްވާ.
+          </p>
+          <button class="btn btn-danger" onclick="startClearProcess()">ހުރިހާ ނަމެއް ފޮހެލާ</button>
+        </div>
       </div>
 
       <h3 style="margin-bottom: 12px; color: var(--primary-color);">ވޯޓުލާ މީހުން</h3>
@@ -261,7 +315,7 @@
             </tr>
           </thead>
           <tbody id="directory-table-body">
-            </tbody>
+          </tbody>
         </table>
       </div>
     </div>
@@ -269,9 +323,42 @@
   </div>
 </div>
 
+<div id="delete-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3 style="color: var(--danger-color); margin-bottom: 10px;">އިންޒާރު: ހުރިހާ ނަމެއް ފޮހެލަނީ!</h3>
+    <p style="font-size: 0.95rem; color: #475569;">
+      މި ފިޔަވަޅުގެ ސަބަބުން ލިސްޓުގައިވާ ހުރިހާ މަޢުލޫމާތެއް އެކީ ފޮހެވޭނެއެވެ.
+    </p>
+
+    <div id="modal-countdown-section">
+      <div class="countdown-circle" id="countdown-timer">5</div>
+      <p style="text-align: center; font-size: 0.85rem; color: #64748b;">
+        އިންތިޒާރުކުރައްވާ... ޕާސްވޯޑް ޖެހޭނީ ސިކުންތު ހަމަވުމުންނެވެ.
+      </p>
+    </div>
+
+    <div id="modal-password-section" class="hidden" style="margin-top: 15px;">
+      <div class="form-group">
+        <label for="delete-password">ކަށަވަރުކުރުމަށް ޕާސްވޯޑް ޖައްސަވާ:</label>
+        <input type="password" id="delete-password" placeholder="******">
+      </div>
+      <div id="modal-error" class="error-msg hidden"></div>
+      
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn btn-danger" style="flex: 1;" onclick="confirmClearAll()">ފޮހެލާ</button>
+        <button class="btn btn-secondary" style="flex: 1;" onclick="closeClearModal()">ކެންސަލް</button>
+      </div>
+    </div>
+
+    <div id="modal-cancel-only" style="margin-top: 15px;">
+      <button class="btn btn-secondary" style="width: 100%;" onclick="closeClearModal()">ކެންސަލް</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+  import { getDatabase, ref, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDshw1269_3lCKNlphJ2Mbk2gg5L1XCt8E",
@@ -288,6 +375,10 @@
   const db = getDatabase(app);
 
   let currentUser = null;
+  let countdownInterval = null;
+
+  // PASSWORD FOR DELETING ALL NAMES (Change this as desired)
+  const DELETE_PASSWORD = "123456";
 
   window.addEventListener("DOMContentLoaded", () => {
     checkSavedSession();
@@ -328,10 +419,17 @@
     document.getElementById("login-section").classList.add("hidden");
     document.getElementById("dashboard-section").classList.remove("hidden");
 
-    // UPDATED: Role display string for candidate and mandhoob
-    const displayRole = user.role === "candidate" ? "ކެންޑިޑޭޓް" : "މަންދޫބު";
+    const isCandidate = user.role === "candidate";
+    const displayRole = isCandidate ? "ކެންޑިޑޭޓް" : "މަންދޫބު";
     document.getElementById("current-user-name").textContent = user.name;
     document.getElementById("current-user-role").textContent = displayRole;
+
+    // Show candidate-specific tools (Excel Upload & Clear Database)
+    if (isCandidate) {
+      document.getElementById("candidate-tools-container").classList.remove("hidden");
+    } else {
+      document.getElementById("candidate-tools-container").classList.add("hidden");
+    }
 
     subscribeToDirectory();
   }
@@ -423,8 +521,6 @@
         actionCell.appendChild(tickBtn);
       } else {
         const isTickedByCurrentUser = person.tickedById === currentUser.nationalId;
-        
-        // UPDATED: Check for 'candidate' role instead of 'superadmin'
         const isCandidate = currentUser.role === "candidate";
 
         if (isTickedByCurrentUser) {
@@ -517,6 +613,70 @@
     };
 
     reader.readAsArrayBuffer(file);
+  };
+
+  // --- DELETE ALL NAMES CLEAR PROCESS LOGIC ---
+  window.startClearProcess = function() {
+    const modal = document.getElementById("delete-modal");
+    const countdownElement = document.getElementById("countdown-timer");
+    const countdownSection = document.getElementById("modal-countdown-section");
+    const passwordSection = document.getElementById("modal-password-section");
+    const cancelOnlyBtn = document.getElementById("modal-cancel-only");
+    const errorMsg = document.getElementById("modal-error");
+
+    // Reset UI
+    document.getElementById("delete-password").value = "";
+    errorMsg.classList.add("hidden");
+    countdownSection.classList.remove("hidden");
+    passwordSection.classList.add("hidden");
+    cancelOnlyBtn.classList.remove("hidden");
+    modal.classList.remove("hidden");
+
+    let timeLeft = 5;
+    countdownElement.textContent = timeLeft;
+
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      countdownElement.textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+        countdownSection.classList.add("hidden");
+        cancelOnlyBtn.classList.add("hidden");
+        passwordSection.classList.remove("hidden");
+      }
+    }, 1000);
+  };
+
+  window.closeClearModal = function() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    document.getElementById("delete-modal").classList.add("hidden");
+  };
+
+  window.confirmClearAll = function() {
+    const passInput = document.getElementById("delete-password").value;
+    const errorMsg = document.getElementById("modal-error");
+
+    if (passInput !== DELETE_PASSWORD) {
+      errorMsg.textContent = "ނުބައި ޕާސްވޯޑެއް!";
+      errorMsg.classList.remove("hidden");
+      return;
+    }
+
+    // Clear 'people' node in database
+    const peopleRef = ref(db, "people");
+    remove(peopleRef)
+      .then(() => {
+        alert("ހުރިހާ ނަމެއް ކާމިޔާބުކަމާއެކު ފޮހެލެވިއްޖެ!");
+        closeClearModal();
+      })
+      .catch((err) => {
+        console.error(err);
+        errorMsg.textContent = "ޑޭޓާ ފޮހެލުމުގައި މައްސަލައެއް ޖެހިއްޖެ.";
+        errorMsg.classList.remove("hidden");
+      });
   };
 </script>
 </body>
