@@ -13,7 +13,6 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
-    /* Custom Fonts Definition */
     @font-face {
       font-family: 'MvMAGRoundBold';
       src: url('Mv_MAG_Round_Bold.otf') format('opentype');
@@ -262,11 +261,7 @@
       text-align: center;
       margin: 15px 0;
     }
-
-    /* ============================================================
-       Broadcast Notifications: bell, heads-up toasts, notif center
-       ============================================================ */
-
+    
     .header-actions {
       display: flex;
       align-items: center;
@@ -313,7 +308,6 @@
       100% { transform: scale(1); }
     }
 
-    /* Heads-up toast banners */
     #toast-container {
       position: fixed;
       top: 14px;
@@ -403,7 +397,6 @@
     .toast.type-warning .toast-progress-bar { background: var(--warning-color); }
     .toast.type-danger .toast-progress-bar { background: var(--danger-color); }
 
-    /* Notification Center (list of all broadcasts) */
     .notif-panel {
       background: white;
       border-radius: 12px;
@@ -497,7 +490,6 @@
     .notif-empty { text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 0.92rem; }
     .notif-empty .notif-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; }
 
-    /* Broadcast composer (candidate only) */
     .broadcast-type-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 
     .type-chip {
@@ -591,23 +583,22 @@
         <div class="admin-tools">
           <h4>📢 އިޢުލާނެއް ފޮނުއްވުން</h4>
           <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">
-            މި ފޮނުއްވާ މެސެޖު ވަގުތުން ސައިޓުގައި ތިއްބެވި ހުރިހާ ބޭފުޅުންނަށް ފެންނާނެއެވެ، އަދި "🔔" މެނޫގައި ފޮހެލަންދެން ފެންނަން ހުންނާނެއެވެ.
+            ފޮނުވޭ މެސެޖު ވަގުތުން ސައިޓުގައި ތިއްބެވި ހުރިހާ ބޭފުޅުންނަށް ފެންނާނެ!
           </p>
 
           <div class="broadcast-type-picker" id="broadcast-type-picker">
             <button type="button" class="type-chip active" data-type="info" onclick="selectBroadcastType('info')">އާދައިގެ</button>
-            <button type="button" class="type-chip" data-type="success" onclick="selectBroadcastType('success')">ކާމިޔާބު</button>
             <button type="button" class="type-chip" data-type="warning" onclick="selectBroadcastType('warning')">ސަމާލުކަން</button>
             <button type="button" class="type-chip" data-type="danger" onclick="selectBroadcastType('danger')">މުހިންމު</button>
           </div>
 
           <div class="form-group" style="margin-bottom: 10px;">
-            <textarea id="broadcast-message-input" placeholder="މެސެޖު މިތާނގައި ލިޔުއްވާ..." maxlength="400"></textarea>
+            <textarea id="broadcast-message-input" maxlength="400"></textarea>
           </div>
 
           <div id="broadcast-error" class="error-msg hidden"></div>
 
-          <button class="btn btn-primary" style="width: 100%;" onclick="sendBroadcast()">✉️ ފޮނުއްވާ</button>
+          <button class="btn btn-primary" style="width: 100%;" onclick="sendBroadcast()">ފޮނުވާ</button>
         </div>
 
         <div class="admin-tools">
@@ -662,10 +653,10 @@
 <div id="notif-center-overlay" class="modal-overlay hidden" onclick="handleNotifOverlayClick(event)">
   <div class="notif-panel" onclick="event.stopPropagation()">
     <div class="notif-panel-header">
-      <h3>🔔 އިޢުލާންތައް</h3>
+      <h3>އިޢުލާންތައް</h3>
       <div class="notif-panel-actions">
-        <button id="notif-clear-all-btn" class="btn btn-danger hidden" onclick="startClearBroadcastsProcess()">ހުރިހާ ފޮހެލާ</button>
-        <button class="btn btn-secondary" onclick="closeNotifCenter()">ބަންދު</button>
+        <button id="notif-clear-all-btn" class="btn btn-danger hidden" onclick="startClearBroadcastsProcess()">ފޮހެލާ</button>
+        <button class="btn btn-secondary" onclick="closeNotifCenter()">x</button>
       </div>
     </div>
     <div id="notif-list" class="notif-list"></div>
@@ -674,10 +665,7 @@
 
 <div id="broadcast-clear-modal" class="modal-overlay hidden">
   <div class="modal-content">
-    <h3 style="color: var(--danger-color); margin-bottom: 10px;">އިޢުލާންތައް ފޮހެލަނީ!</h3>
-    <p style="font-size: 0.95rem; color: #475569;">
-      ލިސްޓުގައިވާ ހުރިހާ އިޢުލާނެއް އެކީގައި ފޮހެލެވޭނެއެވެ. މި ފިޔަވަޅު ފަހަށް ބަދަލެއް ނުކުރެވޭނެއެވެ.
-    </p>
+    <h3 style="color: var(--danger-color); margin-bottom: 10px;">ހުރިހާ އިޢުލާނެއް އެކުގައި ފޮހެލެވޭނެ!</h3>
     <div style="display: flex; gap: 10px; margin-top: 20px;">
       <button class="btn btn-danger" style="flex: 1;" onclick="confirmClearBroadcasts()">ފޮހެލާ</button>
       <button class="btn btn-secondary" style="flex: 1;" onclick="closeBroadcastClearModal()">ކެންސަލް</button>
@@ -687,10 +675,7 @@
 
 <div id="delete-modal" class="modal-overlay hidden">
   <div class="modal-content">
-    <h3 style="color: var(--danger-color); margin-bottom: 10px;">އިންޒާރު: ހުރިހާ ނަމެއް ފޮހެލަނީ!</h3>
-    <p style="font-size: 0.95rem; color: #475569;">
-      މި ފިޔަވަޅުގެ ސަބަބުން ލިސްޓުގައިވާ ހުރިހާ މަޢުލޫމާތެއް އެކީ ފޮހެވޭނެއެވެ.
-    </p>
+    <h3 style="color: var(--danger-color); margin-bottom: 10px;">އިންޒާރު: ވޯޓުލެވޭ މީހުންގެ ލިސްޓުގައިވާ ހުރިހާ ނަމެއް ފޮހެލަނީ</h3>
 
     <div id="modal-countdown-section">
       <div class="countdown-circle" id="countdown-timer">5</div>
@@ -747,7 +732,6 @@
 
   const BROADCAST_TYPE_META = {
     info: { icon: "📘", label: "އިޢުލާނު" },
-    success: { icon: "✅", label: "ކާމިޔާބު" },
     warning: { icon: "⚠️", label: "ސަމާލުކަން" },
     danger: { icon: "🚨", label: "މުހިންމު އިޢުލާނު" }
   };
@@ -815,7 +799,6 @@
     document.getElementById("current-user-name").textContent = user.name;
     document.getElementById("current-user-role").textContent = displayRole;
 
-    // Show candidate-specific tools (Excel Upload & Clear Database)
     if (isCandidate) {
       document.getElementById("candidate-tools-container").classList.remove("hidden");
     } else {
@@ -887,8 +870,6 @@
     });
   }
 
-  // --- BROADCAST NOTIFICATIONS SYSTEM ---
-
   function subscribeToBroadcasts() {
     const broadcastsRef = ref(db, "broadcasts");
     onValue(broadcastsRef, (snapshot) => {
@@ -928,8 +909,7 @@
 
     return new Date(timestamp).toLocaleDateString("en-GB");
   }
-
-  // Show a heads-up toast for any broadcast this device hasn't already toasted
+  
   function handleNewBroadcasts() {
     const all = getSortedBroadcasts();
     const existingIds = all.map((b) => b.id);
@@ -946,7 +926,6 @@
       seenToastIds = seenToastIds.concat(newOnes.map((b) => b.id));
     }
 
-    // Keep the local "seen" list from growing forever / referencing deleted messages
     seenToastIds = seenToastIds.filter((id) => existingIds.includes(id));
     localStorage.setItem("seenToastIds", JSON.stringify(seenToastIds));
   }
@@ -1057,7 +1036,7 @@
       emptyIcon.textContent = "🔕";
 
       const emptyText = document.createElement("div");
-      emptyText.textContent = "އަދި އިޢުލާނެއް ފޮނުވިފައެއް ނުވެއެވެ";
+      emptyText.textContent = "އިޢުލާނެއް ނެތް";
 
       empty.appendChild(emptyIcon);
       empty.appendChild(emptyText);
