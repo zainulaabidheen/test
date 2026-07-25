@@ -34,6 +34,10 @@
       --accent-hover: #1d4ed8;
       --danger-color: #ef4444;
       --danger-hover: #dc2626;
+      --success-color: #10b981;
+      --success-hover: #059669;
+      --warning-color: #f59e0b;
+      --warning-hover: #d97706;
       --bg-color: #f8fafc;
       --card-bg: #ffffff;
       --text-color: #1e293b;
@@ -259,13 +263,291 @@
       margin: 15px 0;
     }
 
+    /* ============================================================
+       Broadcast Notifications: bell, heads-up toasts, notif center
+       ============================================================ */
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      position: relative;
+      background-color: #eef2ff;
+      color: var(--accent-color);
+      border: 1px solid #dbeafe;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 10px;
+      font-size: 1.3rem;
+      flex: 0 0 auto;
+    }
+
+    .icon-btn:hover { background-color: #e0e7ff; }
+
+    .notif-badge {
+      position: absolute;
+      top: -6px;
+      left: -6px;
+      background-color: var(--danger-color);
+      color: white;
+      font-size: 0.68rem;
+      font-weight: 700;
+      min-width: 19px;
+      height: 19px;
+      padding: 0 4px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--card-bg);
+      animation: notif-badge-pop 0.3s ease;
+    }
+
+    @keyframes notif-badge-pop {
+      0% { transform: scale(0); }
+      70% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+
+    /* Heads-up toast banners */
+    #toast-container {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 420px;
+      padding: 0 14px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background: var(--primary-color);
+      color: #f1f5f9;
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 15px 30px -8px rgba(15, 23, 42, 0.45), 0 4px 10px rgba(15, 23, 42, 0.15);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-right: 5px solid var(--accent-color);
+      overflow: hidden;
+      position: relative;
+      transform: translateY(-160%);
+      opacity: 0;
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s ease;
+    }
+
+    .toast.toast-show { transform: translateY(0); opacity: 1; }
+    .toast.toast-hide { transform: translateY(-160%); opacity: 0; }
+
+    .toast.type-success { border-right-color: var(--success-color); }
+    .toast.type-warning { border-right-color: var(--warning-color); }
+    .toast.type-danger { border-right-color: var(--danger-color); }
+
+    .toast-icon { font-size: 1.4rem; line-height: 1; flex: 0 0 auto; margin-top: 2px; }
+    .toast-body { flex: 1; min-width: 0; }
+
+    .toast-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 3px;
+      color: #ffffff;
+    }
+
+    .toast-text {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      word-break: break-word;
+    }
+
+    .toast-meta { font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
+
+    .toast-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 2px 4px;
+      flex: 0 0 auto;
+    }
+
+    .toast-close:hover { color: #f1f5f9; }
+
+    .toast-progress {
+      position: absolute;
+      bottom: 0; right: 0; left: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .toast-progress-bar {
+      height: 100%;
+      background: var(--accent-color);
+      width: 100%;
+      transform-origin: right;
+    }
+
+    .toast.type-success .toast-progress-bar { background: var(--success-color); }
+    .toast.type-warning .toast-progress-bar { background: var(--warning-color); }
+    .toast.type-danger .toast-progress-bar { background: var(--danger-color); }
+
+    /* Notification Center (list of all broadcasts) */
+    .notif-panel {
+      background: white;
+      border-radius: 12px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 82vh;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: notif-panel-in 0.25s ease;
+    }
+
+    @keyframes notif-panel-in {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .notif-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .notif-panel-header h3 { color: var(--primary-color); font-size: 1.15rem; }
+
+    .notif-panel-actions { display: flex; gap: 8px; align-items: center; }
+    .notif-panel-actions button { padding: 8px 12px; font-size: 0.82rem; }
+
+    .notif-list { overflow-y: auto; padding: 12px; flex: 1; }
+
+    .notif-item {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-right: 4px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      animation: notif-item-in 0.25s ease;
+    }
+
+    @keyframes notif-item-in {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .notif-item.type-success { border-right-color: var(--success-color); }
+    .notif-item.type-warning { border-right-color: var(--warning-color); }
+    .notif-item.type-danger { border-right-color: var(--danger-color); }
+
+    .notif-item-icon { font-size: 1.25rem; flex: 0 0 auto; margin-top: 1px; }
+    .notif-item-body { flex: 1; min-width: 0; }
+
+    .notif-item-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--primary-color);
+      margin-bottom: 2px;
+    }
+
+    .notif-item-text {
+      font-size: 0.88rem;
+      color: var(--text-color);
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .notif-item-meta { font-size: 0.72rem; color: #64748b; margin-top: 6px; }
+
+    .notif-item-delete {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px 6px;
+      border-radius: 6px;
+      flex: 0 0 auto;
+    }
+
+    .notif-item-delete:hover { color: var(--danger-color); background: #fef2f2; }
+
+    .notif-empty { text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 0.92rem; }
+    .notif-empty .notif-empty-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+
+    /* Broadcast composer (candidate only) */
+    .broadcast-type-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .type-chip {
+      font-family: 'MvMAGRoundBold', 'Noto Sans Thaana', sans-serif;
+      border: 1.5px solid var(--border-color);
+      background: white;
+      color: #64748b;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .type-chip.active[data-type="info"] { background: var(--accent-color); border-color: var(--accent-color); color: white; }
+    .type-chip.active[data-type="success"] { background: var(--success-color); border-color: var(--success-color); color: white; }
+    .type-chip.active[data-type="warning"] { background: var(--warning-color); border-color: var(--warning-color); color: white; }
+    .type-chip.active[data-type="danger"] { background: var(--danger-color); border-color: var(--danger-color); color: white; }
+
+    textarea#broadcast-message-input {
+      font-family: 'MvMAGRoundBold', 'Noto Sans Thaana', sans-serif;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #f8fafc;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 80px;
+      transition: all 0.2s;
+    }
+
+    textarea#broadcast-message-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background-color: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
     @media (max-width: 600px) {
       body { padding: 8px; }
       .card { padding: 16px; }
       .header-bar { flex-direction: column; align-items: flex-start; }
-      .header-bar button { width: 100%; }
-      .btn { width: 100%; text-align: center; }
+      .header-bar button:not(.icon-btn) { width: 100%; }
+      .btn:not(.icon-btn) { width: 100%; text-align: center; }
       td, th { padding: 10px 12px; font-size: 0.9rem; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .notif-panel { max-height: 90vh; }
+      #toast-container { max-width: calc(100% - 20px); }
     }
   </style>
 </head>
@@ -297,10 +579,37 @@
           ލޮގިންވެފައިވަނީ: <strong id="current-user-name"></strong> 
           (<span id="current-user-role"></span>)
         </div>
-        <button class="btn btn-danger" onclick="logout()">ލޮގް އައުޓް</button>
+        <div class="header-actions">
+          <button class="btn icon-btn" onclick="openNotifCenter()" title="އިޢުލާންތައް" aria-label="އިޢުލާންތައް">
+            🔔<span id="notif-badge" class="notif-badge hidden">0</span>
+          </button>
+          <button class="btn btn-danger" onclick="logout()">ލޮގް އައުޓް</button>
+        </div>
       </div>
 
       <div id="candidate-tools-container" class="hidden">
+        <div class="admin-tools">
+          <h4>📢 އިޢުލާނެއް ފޮނުއްވުން</h4>
+          <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">
+            މި ފޮނުއްވާ މެސެޖު ވަގުތުން ސައިޓުގައި ތިއްބެވި ހުރިހާ ބޭފުޅުންނަށް ފެންނާނެއެވެ، އަދި "🔔" މެނޫގައި ފޮހެލަންދެން ފެންނަން ހުންނާނެއެވެ.
+          </p>
+
+          <div class="broadcast-type-picker" id="broadcast-type-picker">
+            <button type="button" class="type-chip active" data-type="info" onclick="selectBroadcastType('info')">އާދައިގެ</button>
+            <button type="button" class="type-chip" data-type="success" onclick="selectBroadcastType('success')">ކާމިޔާބު</button>
+            <button type="button" class="type-chip" data-type="warning" onclick="selectBroadcastType('warning')">ސަމާލުކަން</button>
+            <button type="button" class="type-chip" data-type="danger" onclick="selectBroadcastType('danger')">މުހިންމު</button>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 10px;">
+            <textarea id="broadcast-message-input" placeholder="މެސެޖު މިތާނގައި ލިޔުއްވާ..." maxlength="400"></textarea>
+          </div>
+
+          <div id="broadcast-error" class="error-msg hidden"></div>
+
+          <button class="btn btn-primary" style="width: 100%;" onclick="sendBroadcast()">✉️ ފޮނުއްވާ</button>
+        </div>
+
         <div class="admin-tools">
           <h4>އެކްސެލް ޝީޓް އަޕްލޯޑް ކުރެއްވުމަށް</h4>
           <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -348,6 +657,34 @@
   </div>
 </div>
 
+<div id="toast-container"></div>
+
+<div id="notif-center-overlay" class="modal-overlay hidden" onclick="handleNotifOverlayClick(event)">
+  <div class="notif-panel" onclick="event.stopPropagation()">
+    <div class="notif-panel-header">
+      <h3>🔔 އިޢުލާންތައް</h3>
+      <div class="notif-panel-actions">
+        <button id="notif-clear-all-btn" class="btn btn-danger hidden" onclick="startClearBroadcastsProcess()">ހުރިހާ ފޮހެލާ</button>
+        <button class="btn btn-secondary" onclick="closeNotifCenter()">ބަންދު</button>
+      </div>
+    </div>
+    <div id="notif-list" class="notif-list"></div>
+  </div>
+</div>
+
+<div id="broadcast-clear-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h3 style="color: var(--danger-color); margin-bottom: 10px;">އިޢުލާންތައް ފޮހެލަނީ!</h3>
+    <p style="font-size: 0.95rem; color: #475569;">
+      ލިސްޓުގައިވާ ހުރިހާ އިޢުލާނެއް އެކީގައި ފޮހެލެވޭނެއެވެ. މި ފިޔަވަޅު ފަހަށް ބަދަލެއް ނުކުރެވޭނެއެވެ.
+    </p>
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button class="btn btn-danger" style="flex: 1;" onclick="confirmClearBroadcasts()">ފޮހެލާ</button>
+      <button class="btn btn-secondary" style="flex: 1;" onclick="closeBroadcastClearModal()">ކެންސަލް</button>
+    </div>
+  </div>
+</div>
+
 <div id="delete-modal" class="modal-overlay hidden">
   <div class="modal-content">
     <h3 style="color: var(--danger-color); margin-bottom: 10px;">އިންޒާރު: ހުރިހާ ނަމެއް ފޮހެލަނީ!</h3>
@@ -383,7 +720,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  import { getDatabase, ref, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+  import { getDatabase, ref, get, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDshw1269_3lCKNlphJ2Mbk2gg5L1XCt8E",
@@ -402,6 +739,18 @@
   let currentUser = null;
   let countdownInterval = null;
   let allPeopleData = {};
+
+  let allBroadcasts = {};
+  let selectedBroadcastType = "info";
+  let seenToastIds = JSON.parse(localStorage.getItem("seenToastIds") || "[]");
+  let readBroadcastIds = JSON.parse(localStorage.getItem("readBroadcastIds") || "[]");
+
+  const BROADCAST_TYPE_META = {
+    info: { icon: "📘", label: "އިޢުލާނު" },
+    success: { icon: "✅", label: "ކާމިޔާބު" },
+    warning: { icon: "⚠️", label: "ސަމާލުކަން" },
+    danger: { icon: "🚨", label: "މުހިންމު އިޢުލާނު" }
+  };
 
   const DELETE_PASSWORD = "9871232580";
 
@@ -474,6 +823,7 @@
     }
 
     subscribeToDirectory();
+    subscribeToBroadcasts();
   }
 
   window.handleLogin = function() {
@@ -536,6 +886,283 @@
       filterAndRenderTable();
     });
   }
+
+  // --- BROADCAST NOTIFICATIONS SYSTEM ---
+
+  function subscribeToBroadcasts() {
+    const broadcastsRef = ref(db, "broadcasts");
+    onValue(broadcastsRef, (snapshot) => {
+      allBroadcasts = snapshot.val() || {};
+      handleNewBroadcasts();
+      updateNotifBadge();
+
+      const notifOverlay = document.getElementById("notif-center-overlay");
+      if (notifOverlay && !notifOverlay.classList.contains("hidden")) {
+        renderNotifList();
+      }
+    });
+  }
+
+  function getSortedBroadcasts() {
+    return Object.keys(allBroadcasts)
+      .map((id) => ({ id, ...allBroadcasts[id] }))
+      .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  }
+
+  function getTypeMeta(type) {
+    return BROADCAST_TYPE_META[type] || BROADCAST_TYPE_META.info;
+  }
+
+  function formatBroadcastTime(timestamp) {
+    if (!timestamp) return "";
+    const diffMin = Math.floor((Date.now() - timestamp) / 60000);
+
+    if (diffMin < 1) return "މިހާރު";
+    if (diffMin < 60) return `${diffMin} މިނިޓް ކުރިން`;
+
+    const diffHr = Math.floor(diffMin / 60);
+    if (diffHr < 24) return `${diffHr} ގަޑިއިރު ކުރިން`;
+
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay < 7) return `${diffDay} ދުވަސް ކުރިން`;
+
+    return new Date(timestamp).toLocaleDateString("en-GB");
+  }
+
+  // Show a heads-up toast for any broadcast this device hasn't already toasted
+  function handleNewBroadcasts() {
+    const all = getSortedBroadcasts();
+    const existingIds = all.map((b) => b.id);
+
+    const newOnes = all
+      .filter((b) => !seenToastIds.includes(b.id))
+      .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+    if (newOnes.length > 0) {
+      newOnes.forEach((broadcast, index) => {
+        setTimeout(() => showToast(broadcast), index * 350);
+      });
+
+      seenToastIds = seenToastIds.concat(newOnes.map((b) => b.id));
+    }
+
+    // Keep the local "seen" list from growing forever / referencing deleted messages
+    seenToastIds = seenToastIds.filter((id) => existingIds.includes(id));
+    localStorage.setItem("seenToastIds", JSON.stringify(seenToastIds));
+  }
+
+  function showToast(broadcast) {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+
+    const meta = getTypeMeta(broadcast.type);
+    const toastEl = document.createElement("div");
+    toastEl.className = `toast type-${broadcast.type || "info"}`;
+
+    toastEl.innerHTML = `
+      <div class="toast-icon">${meta.icon}</div>
+      <div class="toast-body">
+        <div class="toast-title"></div>
+        <div class="toast-text"></div>
+        <div class="toast-meta"></div>
+      </div>
+      <button class="toast-close" aria-label="ބަންދު">✕</button>
+      <div class="toast-progress"><div class="toast-progress-bar"></div></div>
+    `;
+
+    toastEl.querySelector(".toast-title").textContent = meta.label;
+    toastEl.querySelector(".toast-text").textContent = broadcast.text || "";
+    toastEl.querySelector(".toast-meta").textContent =
+      `${broadcast.senderName || ""} • ${formatBroadcastTime(broadcast.timestamp)}`;
+    toastEl.querySelector(".toast-close").onclick = () => dismissToast(toastEl);
+
+    container.appendChild(toastEl);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toastEl.classList.add("toast-show"));
+    });
+
+    const DURATION_MS = 7000;
+    const progressBar = toastEl.querySelector(".toast-progress-bar");
+    progressBar.style.transition = `transform ${DURATION_MS}ms linear`;
+    requestAnimationFrame(() => {
+      progressBar.style.transform = "scaleX(0)";
+    });
+
+    const dismissTimer = setTimeout(() => dismissToast(toastEl), DURATION_MS);
+    toastEl.dataset.dismissTimer = String(dismissTimer);
+  }
+
+  function dismissToast(toastEl) {
+    if (!toastEl || !toastEl.parentNode) return;
+    clearTimeout(Number(toastEl.dataset.dismissTimer));
+    toastEl.classList.remove("toast-show");
+    toastEl.classList.add("toast-hide");
+    setTimeout(() => toastEl.remove(), 450);
+  }
+
+  function updateNotifBadge() {
+    const badge = document.getElementById("notif-badge");
+    if (!badge) return;
+
+    const all = getSortedBroadcasts();
+    const existingIds = all.map((b) => b.id);
+    readBroadcastIds = readBroadcastIds.filter((id) => existingIds.includes(id));
+    localStorage.setItem("readBroadcastIds", JSON.stringify(readBroadcastIds));
+
+    const unreadCount = all.filter((b) => !readBroadcastIds.includes(b.id)).length;
+
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
+      badge.classList.remove("hidden");
+    } else {
+      badge.classList.add("hidden");
+    }
+  }
+
+  window.openNotifCenter = function() {
+    document.getElementById("notif-center-overlay").classList.remove("hidden");
+    renderNotifList();
+
+    const all = getSortedBroadcasts();
+    readBroadcastIds = all.map((b) => b.id);
+    localStorage.setItem("readBroadcastIds", JSON.stringify(readBroadcastIds));
+    updateNotifBadge();
+  };
+
+  window.closeNotifCenter = function() {
+    document.getElementById("notif-center-overlay").classList.add("hidden");
+  };
+
+  window.handleNotifOverlayClick = function(e) {
+    if (e.target.id === "notif-center-overlay") closeNotifCenter();
+  };
+
+  function renderNotifList() {
+    const listEl = document.getElementById("notif-list");
+    const clearAllBtn = document.getElementById("notif-clear-all-btn");
+    const isAdmin = !!(currentUser && currentUser.role === "candidate");
+
+    clearAllBtn.classList.toggle("hidden", !isAdmin);
+
+    const all = getSortedBroadcasts();
+    listEl.innerHTML = "";
+
+    if (all.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "notif-empty";
+
+      const emptyIcon = document.createElement("span");
+      emptyIcon.className = "notif-empty-icon";
+      emptyIcon.textContent = "🔕";
+
+      const emptyText = document.createElement("div");
+      emptyText.textContent = "އަދި އިޢުލާނެއް ފޮނުވިފައެއް ނުވެއެވެ";
+
+      empty.appendChild(emptyIcon);
+      empty.appendChild(emptyText);
+      listEl.appendChild(empty);
+      return;
+    }
+
+    all.forEach((broadcast) => {
+      const meta = getTypeMeta(broadcast.type);
+
+      const item = document.createElement("div");
+      item.className = `notif-item type-${broadcast.type || "info"}`;
+
+      const icon = document.createElement("div");
+      icon.className = "notif-item-icon";
+      icon.textContent = meta.icon;
+
+      const body = document.createElement("div");
+      body.className = "notif-item-body";
+
+      const title = document.createElement("div");
+      title.className = "notif-item-title";
+      title.textContent = meta.label;
+
+      const text = document.createElement("div");
+      text.className = "notif-item-text";
+      text.textContent = broadcast.text || "";
+
+      const metaLine = document.createElement("div");
+      metaLine.className = "notif-item-meta";
+      metaLine.textContent = `${broadcast.senderName || ""} • ${formatBroadcastTime(broadcast.timestamp)}`;
+
+      body.appendChild(title);
+      body.appendChild(text);
+      body.appendChild(metaLine);
+
+      item.appendChild(icon);
+      item.appendChild(body);
+
+      if (isAdmin) {
+        const delBtn = document.createElement("button");
+        delBtn.className = "notif-item-delete";
+        delBtn.textContent = "🗑";
+        delBtn.title = "ފޮހެލާ";
+        delBtn.onclick = () => deleteBroadcast(broadcast.id);
+        item.appendChild(delBtn);
+      }
+
+      listEl.appendChild(item);
+    });
+  }
+
+  window.selectBroadcastType = function(type) {
+    selectedBroadcastType = type;
+    document.querySelectorAll("#broadcast-type-picker .type-chip").forEach((chip) => {
+      chip.classList.toggle("active", chip.dataset.type === type);
+    });
+  };
+
+  window.sendBroadcast = function() {
+    const input = document.getElementById("broadcast-message-input");
+    const errorEl = document.getElementById("broadcast-error");
+    const text = input.value.trim();
+
+    errorEl.classList.add("hidden");
+
+    if (!text) {
+      errorEl.textContent = "މެސެޖު ލިޔުއްވާ";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+
+    push(ref(db, "broadcasts"), {
+      text: text,
+      type: selectedBroadcastType,
+      senderName: currentUser.name,
+      timestamp: Date.now()
+    }).then(() => {
+      input.value = "";
+    }).catch((err) => {
+      console.error(err);
+      errorEl.textContent = "މެސެޖު ފޮނުވުމުގައި މައްސަލައެއް ޖެހިއްޖެ.";
+      errorEl.classList.remove("hidden");
+    });
+  };
+
+  window.deleteBroadcast = function(id) {
+    remove(ref(db, `broadcasts/${id}`)).catch((err) => console.error(err));
+  };
+
+  window.startClearBroadcastsProcess = function() {
+    document.getElementById("broadcast-clear-modal").classList.remove("hidden");
+  };
+
+  window.closeBroadcastClearModal = function() {
+    document.getElementById("broadcast-clear-modal").classList.add("hidden");
+  };
+
+  window.confirmClearBroadcasts = function() {
+    remove(ref(db, "broadcasts")).then(() => {
+      closeBroadcastClearModal();
+    }).catch((err) => {
+      console.error(err);
+    });
+  };
 
   function filterAndRenderTable() {
     const searchInput = document.getElementById("search-input");
